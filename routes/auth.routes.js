@@ -1,11 +1,11 @@
 const express = require("express")
 const User = require("../models/User.model")
 const router = express.Router()
-const saltRounds = 10;
-const bcryptjs = require("bcryptjs")
-const bcrypt = require("bcrypt")
+const saltRounds = process.env.SALT || 10;
+const bcrypt = require("bcryptjs")
 const res = require("express/lib/response")
 
+const isNotLoggedIn = require("./../middleware/isNotLoggedIn");
 
 router
   .route("/signup")
@@ -35,7 +35,7 @@ router
       //*1- then here would be password = bcrypt.hashSync(password,salt)
       const hashedPwd = bcrypt.hashSync(password, salt);
       //*1- Then here would be User.create({username, password) In this way would be a cleaner code
-      User.create({ username, password: hashedPwd }).then(() =>
+      User.create({ username, email, password: hashedPwd }).then(() =>
         res.redirect("/")
       );
     });
@@ -74,6 +74,15 @@ router
         .catch((err) => console.log(err))
     })
 
+    router.get("/logout", (req, res) => {
+      req.session.destroy((err) => {
+        if (err) {
+          res.render("error", { message: "Something went wrong! Yikes!" });
+        } else {
+          res.redirect("/");
+        }
+      });
+    });
 
 
     module.exports = router

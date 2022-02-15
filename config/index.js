@@ -21,6 +21,11 @@ const MongoStore = require("connect-mongo")
 
 const path = require("path");
 
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/ironrooms";
+
+const EXPRESS_SESSION_SECRET =
+  process.env.EXPRESS_SESSION_SECRET || "SessionSecret";
+
 // Middleware configuration
 module.exports = (app) => {
   // In development environment the app logs
@@ -40,4 +45,18 @@ module.exports = (app) => {
 
   // Handles access to the favicon
   app.use(favicon(path.join(__dirname, "..", "public", "images", "favicon.ico")));
+
+  app.use(
+    session({
+      secret: EXPRESS_SESSION_SECRET,
+      resave: true,
+      saveUninitialized: true,
+      cookie: {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      },
+      store: MongoStore.create({
+        mongoUrl: MONGODB_URI,
+      }),
+    })
+  );
 };

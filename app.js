@@ -1,6 +1,6 @@
 // ℹ️ Gets access to environment variables/settings
 // https://www.npmjs.com/package/dotenv
-require('dotenv/config');
+require("dotenv").config()
 
 // ℹ️ Connects to the database
 require('./db');
@@ -25,8 +25,13 @@ const capitalized = string => string[0].toUpperCase() + string.slice(1).toLowerC
 app.locals.title = `${capitalized(projectName)}- Generated with Ironlauncher`;
 
 // 👇 Start handling routes here
+const isLoggedIn = require("./middleware/isLoggedIn");
+
 const authRouter = require('./routes/auth.routes');
 app.use('/', authRouter);
+
+const privateRoutes = require("./routes/private-routes");
+app.use("/private", isLoggedIn, privateRoutes);
 
 const index = require('./routes/index');
 app.use('/', index);
